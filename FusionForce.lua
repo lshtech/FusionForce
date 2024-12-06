@@ -85,7 +85,6 @@
             }
         end,
         calculate = function(self,card,context)
-            print(card.ability.extra.active)
             if context.joker_main then
                 if card.ability.x_mult > 1 then
                     return {
@@ -122,6 +121,133 @@
     })
 
     FusionJokers.fusions:add_fusion("j_diet_cola", nil, false, "j_throwback", nil, false, "j_fuseforce_PowerPop", 8)
+
+    SMODS.Joker({
+        key = "ReachTheStars", atlas = "fuseforce_jokers", pos = {x = 2, y = 0}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        calculate = function(self,card,context)
+            if context.cardrea == G.hand then
+                if context.other_card.debuff then
+                    return {
+                        message = localize('k_debuffed'),
+                        colour = G.C.RED,
+                        card = card,
+                    }
+                elseif context.other_card.ability.effect ~= 'Stone Card' then
+                    return {
+                        h_mult = 2*context.other_card.base.nominal,
+                        card = card
+                    }
+                end
+            end
+        end
+    })
+
+    FusionJokers.fusions:add_fusion("j_shoot_the_moon", nil, false, "j_raised_fist", nil, false, "j_fuseforce_ReachTheStars", 8)
+    
+    SMODS.Joker({
+        key = "RewardsCard", atlas = "fuseforce_jokers", pos = {x = 3, y = 0}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        config = {
+            extra = {
+                valup = 1,
+                debt = 50,
+                earnings = 0,
+            }
+        },
+        loc_vars = function(self,info_queue,card)
+            return {
+                vars = {card.ability.valup, card.ability.extra.debt, card.ability.extra.earnings}
+            }
+        end,
+        update = function(self, card, dt)
+            if G.STAGE == G.STAGES.RUN then
+            local sell_cost = 0
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i].area and G.jokers.cards[i].area == G.jokers then
+                    sell_cost = sell_cost + G.jokers.cards[i].sell_cost
+                end
+            end
+            card.ability.extra.earnings = math.floor((sell_cost)/5)
+        end
+        end,
+        calculate = function(self,card,context)
+            if context.end_of_round then
+                for k, v in ipairs(G.jokers.cards) do
+                    if v.set_cost then 
+                        v.ability.extra_value = (v.ability.extra_value or 0) + card.ability.extra.valup
+                        v:set_cost()
+                    end
+                end
+                for k, v in ipairs(G.consumeables.cards) do
+                    if v.set_cost then 
+                        v.ability.extra_value = (v.ability.extra_value or 0) + card.ability.extra.valup
+                        v:set_cost()
+                    end
+                end
+                return {
+                    message = localize('k_val_up'),
+                    colour = G.C.MONEY
+                }
+            end
+        end,
+        calc_dollar_bonus = function(self, card)
+            return card.ability.extra.earnings
+        end,
+        add_to_deck = function(self, card, from_debuff)
+            G.GAME.bankrupt_at = G.GAME.bankrupt_at - card.ability.extra.debt
+        end,
+        remove_from_deck = function(self, card, from_debuff)
+            G.GAME.bankrupt_at = G.GAME.bankrupt_at + card.ability.extra.debt
+        end
+    })
+
+    FusionJokers.fusions:add_fusion("j_gift_card", nil, false, "j_credit_card", nil, false, "j_fuseforce_RewardsCard", 8)
+
+    SMODS.Joker({
+        key = "MasterDegree", atlas = "fuseforce_jokers", pos = {x = 4, y = 0}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        config = {
+            extra = {
+                chips = 25,
+                mult = 5
+            }
+        },
+        loc_vars = function(self,info_queue,card)
+            return {
+                vars = {card.ability.extra.chips, card.ability.extra.mult}
+            }
+        end,
+        calculate = function(self,card,context)
+            if context.first_hand_drawn then
+                G.E_MANAGER:add_event(Event({
+                    func = function() 
+                        local _suit = pseudorandom_element({'S','H','D','C'}, pseudoseed('degree_create'))
+                        local cen_pool = {}
+                        for k, v in pairs(G.P_CENTER_POOLS["Enhanced"]) do
+                            if v.key ~= 'm_stone' then 
+                                cen_pool[#cen_pool+1] = v
+                            end
+                        end
+                        local _card = create_playing_card({
+                            front = G.P_CARDS[_suit..'_'.._rank], 
+                            center =  pseudorandom_element(cen_pool, pseudoseed('spe_card'))}, G.hand, nil, nil, {G.C.SECONDARY_SET.Enhanced})
+                        G.GAME.blind:debuff_card(_card)
+                        G.hand:sort()
+                        if context.blueprint_card then context.blueprint_card:juice_up() else card:juice_up() end
+                        return true
+                    end}))
+                playing_card_joker_effects({true})
+                elseif context.individual and context.cardarea == G.play then
+                    if context.other_card:get_id() == 14 then
+                        return {
+                            chips = card.ability.extra.chips,
+                            mult = card.ability.extra.mult,
+                            card = card
+                        }
+                    end
+                end
+        end,
+    })
+
+    FusionJokers.fusions:add_fusion("j_certificate", nil, false, "j_scholar", nil, false, "j_fuseforce_MasterDegree", 8)
 
     
 ----------------------------------------------

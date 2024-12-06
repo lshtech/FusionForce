@@ -20,6 +20,34 @@ return {
                     "{C:inactive}(Currently {X:mult,C:white} X#1# {C:inactive} Mult)"
 				},
 			},
+			["j_fuseforce_ReachTheStars"] = {
+				["name"] = "Reach the Stars",
+				["text"] = {
+					"Cards {C:attention}held in",
+					"{C:attention}hand{} adds {C:attention}double{}",
+                    "their rank to Mult"
+				},
+			},
+			["j_fuseforce_RewardsCard"] = {
+				["name"] = "Rewards Card",
+				["text"] = {
+					"Go up to {C:red}-$#2#{} in debt,",
+					"Add {C:money}$#1#{} of {C:attention}sell value{} to every",
+					"{C:attention}Joker{} and {C:attention}Consumable{} card and",
+					"earn {C:money}$1{} for each {C:money}$5{} of",
+					"collective {C:attention}sell value{} at end of round",
+					"{C:inactive}(Currently {C:money}$#3#{C:inactive})"
+				},
+			},
+			["j_fuseforce_MasterDegree"] = {
+				["name"] = "Master's Degree",
+				["text"] = {
+					"When round begins, add a random {C:attention} Ace",
+					"with a random {C:attention}Enhancement{} to your hand,",
+                    "Played {C:attention}Aces{} give {C:chips}+#1#{} Chips",
+					"and {C:mult}+#2#{} Mult when scored"
+				},
+			},
 		},
 	},
 }
