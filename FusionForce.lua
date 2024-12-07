@@ -249,6 +249,54 @@
 
     FusionJokers.fusions:add_fusion("j_certificate", nil, false, "j_scholar", nil, false, "j_fuseforce_MasterDegree", 8)
 
+    local Cardset_price = Card.set_cost
+    function Card:set_cost()
+        Cardset_price(self)
+        if (
+            (self.ability.set == 'Planet' or self.ability.set == 'Tarot') or 
+            (self.ability.set == 'Booster' and (self.ability.name:find('Celestial') or self.ability.name:find('Arcana')))) 
+            and #find_joker('j_fuseforce_Soothsayer') > 0 then self.cost = 0 end
+    end
+
+    SMODS.Joker({
+        key = "Soothsayer", atlas = "fuseforce_jokers", pos = {x = 0, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        config = {
+            extra = {}
+        },
+        calculate = function(self, card, context)
+            if context.setting_blind and not (context.blueprint or card).getting_sliced then
+                G.E_MANAGER:add_event(Event({
+                    func = (function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function() 
+                                local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, nil, 'soothsayer')
+                                card:add_to_deck()
+                                G.consumeables:emplace(card)
+                                G.GAME.consumeable_buffer = 0
+                                return true
+                            end}))   
+                            card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_plus_tarot'), colour = G.C.PURPLE})                       
+                        return true
+                    end)}))
+                    G.E_MANAGER:add_event(Event({
+                        func = (function()
+                            G.E_MANAGER:add_event(Event({
+                                func = function() 
+                                    local card = create_card('Planet',G.consumeables, nil, nil, nil, nil, nil, 'soothsayer')
+                                    card:add_to_deck()
+                                    G.consumeables:emplace(card)
+                                    G.GAME.consumeable_buffer = 0
+                                    return true
+                                end}))   
+                                card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('k_plus_planet'), colour = G.C.SECONDARY_SET.Planet})                       
+                            return true
+                        end)}))
+            end
+        end
+    })
+
+    FusionJokers.fusions:add_fusion("j_astronomer", nil, false, "j_cartomancer", nil, false, "j_fuseforce_Soothsayer", 8)
+
     
 ----------------------------------------------
 ------------MOD CODE END----------------------
