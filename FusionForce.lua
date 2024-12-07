@@ -134,7 +134,7 @@
                     }
                 elseif context.other_card.ability.effect ~= 'Stone Card' then
                     return {
-                        h_mult = 2*context.other_card.base.nominal,
+                        h_mult = context.other_card.base.nominal,
                         card = card
                     }
                 end
@@ -155,7 +155,7 @@
         },
         loc_vars = function(self,info_queue,card)
             return {
-                vars = {card.ability.valup, card.ability.extra.debt, card.ability.extra.earnings}
+                vars = {card.ability.extra.valup, card.ability.extra.debt, card.ability.extra.earnings}
             }
         end,
         update = function(self, card, dt)

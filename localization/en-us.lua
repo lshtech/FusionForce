@@ -5,7 +5,7 @@ return {
 				["name"] = "Clairvoyant",
 				["text"] = {
                     "Create a {C:spectral}Spectral{} card if",
-                    "poker hand contains an",
+                    "poker hand contains a",
                     "{C:attention}Six{} and a {C:attention}Straight{}",
                     "{C:inactive}(Must have room)",
 					"{C:inactive}(Sixth Sense + Seance){}"
@@ -25,9 +25,8 @@ return {
 			["j_fuseforce_ReachTheStars"] = {
 				["name"] = "Reach the Stars",
 				["text"] = {
-					"Cards {C:attention}held in",
-					"{C:attention}hand{} adds {C:attention}double{}",
-                    "their rank to Mult",
+					"Cards {C:attention}held in hand{}",
+					"add their rank to Mult",
 					"{C:inactive}(Raised Fist + Shoot the Moon){}"
 				},
 			},
@@ -35,10 +34,10 @@ return {
 				["name"] = "Rewards Card",
 				["text"] = {
 					"Go up to {C:red}-$#2#{} in debt,",
-					"Add {C:money}$#1#{} of {C:attention}sell value{} to every",
-					"{C:attention}Joker{} and {C:attention}Consumable{} card and",
-					"earn {C:money}$1{} for each {C:money}$5{} of",
-					"collective {C:attention}sell value{} at end of round",
+					"Add {C:money}$#1#{} of {C:attention}sell value{} to every {C:attention}Joker{}",
+					"and {C:attention}Consumable{} card and earn",
+					"{C:money}$1{} for each {C:money}$5{} in collective",
+					"{C:attention}sell value{} at end of round",
 					"{C:inactive}(Currently {C:money}$#3#{C:inactive})",
 					"{C:inactive}(Gift Card + Credit Card){}"
 				},
