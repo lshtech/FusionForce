@@ -149,13 +149,12 @@
         config = {
             extra = {
                 valup = 1,
-                debt = 50,
-                earnings = 0,
+                debt = 0,
             }
         },
         loc_vars = function(self,info_queue,card)
             return {
-                vars = {card.ability.extra.valup, card.ability.extra.debt, card.ability.extra.earnings}
+                vars = {card.ability.extra.valup, card.ability.extra.debt}
             }
         end,
         update = function(self, card, dt)
@@ -166,7 +165,7 @@
                     sell_cost = sell_cost + G.jokers.cards[i].sell_cost
                 end
             end
-            card.ability.extra.earnings = math.floor((sell_cost)/5)
+            card.ability.extra.debt = math.floor((sell_cost)/5)
         end
         end,
         calculate = function(self,card,context)
@@ -188,9 +187,6 @@
                     colour = G.C.MONEY
                 }
             end
-        end,
-        calc_dollar_bonus = function(self, card)
-            return card.ability.extra.earnings
         end,
         add_to_deck = function(self, card, from_debuff)
             G.GAME.bankrupt_at = G.GAME.bankrupt_at - card.ability.extra.debt
@@ -296,6 +292,185 @@
     })
 
     FusionJokers.fusions:add_fusion("j_astronomer", nil, false, "j_cartomancer", nil, false, "j_fuseforce_Soothsayer", 8)
+
+
+    local refisface = Card.is_face
+    function Card:is_face(from_boss)
+        if self.debuff and not from_boss then return end
+        if next(find_joker('j_fuseforce_Prosopagnosia')) then
+            return true
+        end
+        return refisface(self, from_boss)
+    end
+
+    SMODS.Joker({
+        key = "Prosopagnosia", atlas = "fuseforce_jokers", pos = {x = 1, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        config = {
+            extra = {
+                dollars = 1
+            }
+        },
+        loc_vars = function(self,info_queue,card)
+            return {
+                vars = {card.ability.extra.dollars}
+            }
+        end,
+        calculate = function(self, card, context)
+            if context.discard then
+                if context.other_card:is_face() then
+                    ease_dollars(card.ability.extra.dollars)
+                    return {
+                        message = localize('$')..card.ability.extra.dollars,
+                        colour = G.C.MONEY,
+                        card = card
+                    }
+                end
+            end
+        end
+    })
+
+    FusionJokers.fusions:add_fusion("j_pareidolia", nil, false, "j_faceless_joker", nil, false, "j_fuseforce_Prosopagnosia", 8)
+
+    SMODS.Joker({
+        key = "EnergyDrink", atlas = "fuseforce_jokers", pos = {x = 1, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        config = {
+            extra = {
+                chips = 0,
+                chip_mod = 3,
+                chips_mod = 30,
+            }
+        },
+        loc_vars = function(self,info_queue,card)
+            return {
+                vars = {card.ability.extra.chips, card.ability.extra.chip_mod, card.ability.extra.chips_mod}
+            }
+        end,
+        calculate = function(self, card, context)
+            if context.cardarea == G.jokers then
+                if context.before and not context.blueprint and next(context.poker_hands['Straight']) then
+                    card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chips_mod
+                    return {
+                        message = localize('k_upgrade_ex'),
+                        colour = G.C.CHIPS,
+                        card = card
+                    }
+                elseif context.after and not context.blueprint then
+                    if card.ability.extra.chips - card.ability.extra.chip_mod <= 0 then 
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                play_sound('tarot1')
+                                card.T.r = -0.2
+                                card:juice_up(0.3, 0.4)
+                                card.states.drag.is = true
+                                card.children.center.pinch.x = true
+                                G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.3, blockable = false,
+                                    func = function()
+                                            G.jokers:remove_card(card)
+                                            card:remove()
+                                            card = nil
+                                        return true; end}))
+                                return true
+                            end
+                        })) 
+                        return {
+                            message = localize('k_drunk_ex'),
+                            colour = G.C.CHIPS
+                        }
+                    else
+                        card.ability.extra.chips = card.ability.extra.chips - card.ability.extra.chip_mod
+                        return {
+                            message = localize{type='variable',key='a_chips_minus',vars={card.ability.extra.chip_mod}},
+                            colour = G.C.CHIPS
+                        }
+                    end
+                elseif context.joker_main then
+                    return {
+                        message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}},
+                        chip_mod = card.ability.extra.chips, 
+                        colour = G.C.CHIPS
+                    }
+                end
+            end
+        end
+    })
+
+    FusionJokers.fusions:add_fusion("j_runner", 'chips', true, "j_ice_cream", nil, false, "j_fuseforce_EnergyDrink", 8)
+
+    SMODS.Joker({
+        key = "BoxerShorts", atlas = "fuseforce_jokers", pos = {x = 2, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        config = {
+            mult = 0,
+            extra = {
+                chips = 0,
+                chip_mod = 9,
+                mult_mod = 4,
+            }
+        },
+        loc_vars = function(self,info_queue,card)
+            return {
+                vars = {card.ability.mult, card.ability.extra.chips ,card.ability.extra.chip_mod,card.ability.extra.mult_mod}
+            }
+        end,
+        calculate = function(self, card, context)
+            if context.cardarea == G.jokers then
+                if context.before and not context.blueprint and (next(context.poker_hands['Two Pair']) or next(context.poker_hands['Full House'])) and #context.full_hand == 4 then
+                    card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_mod
+                    card.ability.mult = card.ability.extra.mult_mod + card.ability.mult
+                    return {
+                        message = localize('k_upgrade_ex'),
+                        colour = G.C.PURPLE,
+                        card = card
+                    }
+                elseif context.joker_main then
+                    card_eval_status_text(context.blueprint_card or card, 'jokers', nil, nil, nil, {message = localize{type='variable',key='a_mult',vars={card.ability.mult}}, colour = G.C.MULT})
+                    return {
+                        message = localize{type='variable',key='a_chips',vars={card.ability.extra.chips}},
+                        chip_mod = card.ability.extra.chips, 
+                        mult_mod = card.ability.mult,
+                        colour = G.C.CHIPS
+                    }
+                end
+            end
+        end
+    })
+
+    FusionJokers.fusions:add_fusion("j_spare_trousers", 'mult', false, "j_square_joker", 'chips', true, "j_fuseforce_BoxerShorts", 8)
+
+    SMODS.Joker({
+        key = "OverandOut", atlas = "fuseforce_jokers", pos = {x = 3, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        config = {
+            extra = {
+                chips = 10,
+                mult = 4,
+                Xmult = 1.5
+            }
+        },
+        loc_vars = function(self,info_queue,card)
+            return {
+                vars = {card.ability.extra.chips, card.ability.extra.mult,card.ability.extra.Xmult}
+            }
+        end,
+        calculate = function(self, card, context)
+            if context.individual and context.cardarea == G.play and (context.other_card:get_id() == 10 or context.other_card:get_id() == 4) then
+                if G.GAME.current_round.hands_left == 0 then
+                    return {
+                        chips = card.ability.extra.chips,
+                        mult = card.ability.extra.mult,
+                        x_mult = card.ability.extra.Xmult,
+                        card = card
+                    }
+                else
+                    return {
+                        chips = card.ability.extra.chips,
+                        mult = card.ability.extra.mult,
+                        card = card
+                    }
+                end
+            end
+        end
+    })
+
+    FusionJokers.fusions:add_fusion("j_walkie_talkie", nil, false, "j_acrobat", nil, false, "j_fuseforce_OverandOut", 8)
 
     
 ----------------------------------------------
