@@ -59,7 +59,7 @@
           G.GAME.tags[i]:apply_to_run({type = 'tag_add', tag = _tag})
         end
         for i = 1, #G.jokers.cards do
-            if G.jokers.cards[i].ability.extra.active then
+            if G.jokers.cards[i].ability.extra and G.jokers.cards.ability.extra.active then
                 G.jokers.cards[i]:calculate_joker({ fuseforce_add_tag = true, added_tag = _tag})
                 G.jokers.cards[i].ability.extra.active = false
             end
@@ -332,7 +332,7 @@
     FusionJokers.fusions:add_fusion("j_pareidolia", nil, false, "j_faceless_joker", nil, false, "j_fuseforce_Prosopagnosia", 8)
 
     SMODS.Joker({
-        key = "EnergyDrink", atlas = "fuseforce_jokers", pos = {x = 1, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        key = "EnergyDrink", atlas = "fuseforce_jokers", pos = {x = 3, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
         config = {
             extra = {
                 chips = 0,
@@ -437,7 +437,7 @@
     FusionJokers.fusions:add_fusion("j_spare_trousers", 'mult', false, "j_square_joker", 'chips', true, "j_fuseforce_BoxerShorts", 8)
 
     SMODS.Joker({
-        key = "OverandOut", atlas = "fuseforce_jokers", pos = {x = 3, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
+        key = "OverandOut", atlas = "fuseforce_jokers", pos = {x = 4, y = 1}, rarity = "fusion", blueprint_compat = true, cost = 8,
         config = {
             extra = {
                 chips = 10,
