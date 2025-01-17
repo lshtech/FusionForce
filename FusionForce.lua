@@ -59,7 +59,7 @@
           G.GAME.tags[i]:apply_to_run({type = 'tag_add', tag = _tag})
         end
         for i = 1, #G.jokers.cards do
-            if G.jokers.cards[i].ability.extra and G.jokers.cards.ability.extra.active then
+            if G.jokers.cards[i].ability.extra and G.jokers.cards[i].ability.extra.active then
                 G.jokers.cards[i]:calculate_joker({ fuseforce_add_tag = true, added_tag = _tag})
                 G.jokers.cards[i].ability.extra.active = false
             end
